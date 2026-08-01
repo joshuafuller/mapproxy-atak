@@ -24,8 +24,9 @@ the same map tiles across the uplink.
 - Stale tiles are revalidated only when somebody views them again.
 
 ```mermaid
-flowchart LR
+flowchart TB
     subgraph LAN[Field LAN]
+        direction TB
         CLIENTS["ATAK clients<br/>A · B · C · …"] --> GATEWAY[LAN gateway]
         GATEWAY --> PROXY[MapProxy]
         PROXY <--> RENDERED[(Rendered tiles)]
@@ -54,11 +55,9 @@ Install [Docker](https://docs.docker.com/get-started/get-docker/), Git, `curl`,
 directory:
 
 ```bash
-git clone YOUR_REPOSITORY_URL mapproxy-atak
+git clone https://github.com/joshuafuller/mapproxy-atak.git
 cd mapproxy-atak
 ```
-
-Copy `YOUR_REPOSITORY_URL` from the repository's **Code** button.
 
 ### Windows with WSL
 
