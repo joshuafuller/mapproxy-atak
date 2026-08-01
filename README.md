@@ -27,7 +27,8 @@ or a temporary incident-network uplink.
 
 The project includes:
 
-- a MapProxy tile endpoint with visible OpenStreetMap attribution;
+- a MapProxy tile endpoint with visible
+  [OpenStreetMap attribution](https://osmfoundation.org/wiki/Licence/Attribution_Guidelines);
 - a generated install page, ATAK XML source, deep link, and deployment-specific
   QR code;
 - two persistent cache layers for rendered tiles and upstream responses;
