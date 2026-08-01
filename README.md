@@ -50,9 +50,8 @@ from the public OSM tile service.
 
 ## Quick start
 
-Install [Docker](https://docs.docker.com/get-started/get-docker/), Git, `curl`,
-`jq`, and `ripgrep`. Then clone or download this repository and enter its
-directory:
+Install [Docker](https://docs.docker.com/get-started/get-docker/) and Git. Then
+clone or download this repository and enter its directory:
 
 ```bash
 git clone https://github.com/joshuafuller/mapproxy-atak.git
@@ -65,7 +64,7 @@ Find the Windows LAN address with `ipconfig.exe`. Use the IPv4 address under the
 active Wi-Fi or Ethernet adapter—not the private WSL address.
 
 ```bash
-make windows-up HOST=192.168.1.50 CONTACT=https://maps.example.org/contact
+./scripts/windows-up.sh 192.168.1.50 https://maps.example.org/contact
 ```
 
 The Windows command installs a local Caddy forwarder. This preserves real LAN
@@ -77,8 +76,9 @@ address.
 Find the host's LAN address with `ip -4 address`, then run:
 
 ```bash
-make configure HOST=192.168.1.50 CONTACT=https://maps.example.org/contact
-make up
+docker compose run --rm configure \
+  192.168.1.50 https://maps.example.org/contact
+docker compose up -d --force-recreate --wait
 ```
 
 Replace the example address and contact URL. Configuration intentionally fails
@@ -122,7 +122,7 @@ They are never committed to the repository.
 Monitoring is optional. Start it when you need an event-operations wallboard:
 
 ```bash
-make monitoring-up
+docker compose --profile monitoring up -d --wait
 ```
 
 Open [http://127.0.0.1:3000/d/mapproxy-operations](http://127.0.0.1:3000/d/mapproxy-operations).
@@ -159,7 +159,7 @@ privacy, retention, and LAN access.
 | Upstream protocol | HTTP/1.1; HTTP/2 and HTTP/3 are not currently supported. |
 
 Rendered tiles persist in ignored `cache_data/`. Raw responses persist in the
-Docker volume `osm_http_cache`. A normal `make down` preserves both.
+Docker volume `osm_http_cache`. A normal `docker compose down` preserves both.
 
 > [!IMPORTANT]
 > Do not use ATAK's offline-download feature against `tile.openstreetmap.org`.
@@ -177,18 +177,16 @@ rendered tile. Before deployment, review the current
 [OSM copyright page](https://www.openstreetmap.org/copyright), and
 [report-a-map-issue page](https://www.openstreetmap.org/fixthemap).
 
-## Common commands
+## Common Docker commands
 
 | Command | Purpose |
 | --- | --- |
-| `make status` | Show container health and ports. |
-| `make logs` | Follow service logs. |
-| `make validate` | Validate Compose, YAML, shell, XML, attribution, and dashboard layout. |
-| `make cache-size` | Show rendered and raw cache usage. |
-| `make monitoring-up` | Start and verify Grafana, Loki, and Alloy. |
-| `make monitoring-down` | Stop monitoring without deleting its data. |
-| `make down` | Stop the direct Docker deployment and preserve caches. |
-| `make windows-down` | Stop both the Windows forwarder and Docker services. |
+| `docker compose ps` | Show container health and ports. |
+| `docker compose logs -f` | Follow service logs. |
+| `docker compose up -d --force-recreate --wait` | Start the map services, load generated configuration, and wait for health checks. |
+| `docker compose down` | Stop the map services while preserving caches. |
+| `docker compose --profile monitoring up -d --wait` | Start the map services and dashboard. |
+| `docker compose --profile monitoring stop grafana alloy loki` | Stop only the dashboard services. |
 
 ## Add more maps
 

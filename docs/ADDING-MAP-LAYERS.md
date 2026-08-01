@@ -160,15 +160,16 @@ Create `templates/Local-Example.xml.template`:
 The URL segment `local_example` must match the MapProxy layer name. Match
 `minZoom`, `maxZoom`, and `tileType` to the real source.
 
-`scripts/configure.sh` renders every `templates/*.xml.template` file into
-`runtime/`. The generated files remain ignored by Git.
+The Docker `configure` service renders every `templates/*.xml.template` file
+into `runtime/`. The generated files remain ignored by Git.
 
 ### 5. Regenerate and restart
 
 ```bash
-make configure HOST=192.168.1.50 CONTACT=https://maps.example.org/contact
-make up
-make validate
+docker compose run --rm configure \
+  192.168.1.50 https://maps.example.org/contact
+docker compose up -d --force-recreate --wait
+./scripts/validate.sh --live
 ```
 
 The new XML is now available at:
@@ -192,9 +193,9 @@ http://192.168.1.50:8080/mapproxy/tiles/local_example/webmercator/0/0/0.png
 Then verify:
 
 ```bash
-make status
-make validate
-make logs
+docker compose ps
+./scripts/validate.sh --live
+docker compose logs -f
 ```
 
 Confirm the image renders, attribution is visible where required, repeat views
@@ -308,7 +309,7 @@ Before committing a new layer:
 - [ ] Zoom range and tile format match the upstream.
 - [ ] No API keys, private URLs, LAN addresses, generated XML, or QR images are
       tracked.
-- [ ] `make validate` passes.
+- [ ] `./scripts/validate.sh --live` passes.
 - [ ] A fresh request renders and a repeat request uses cache.
 - [ ] Offline download is disabled unless the provider explicitly permits it.
 

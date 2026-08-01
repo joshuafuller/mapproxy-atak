@@ -1417,7 +1417,7 @@
       ],
       "title": "Recent failures and slow requests",
       "type": "logs",
-      "description": "Only failed responses and requests taking longer than one second. Full request logs remain available through make logs."
+      "description": "Only failed responses and requests taking longer than one second. Full request logs remain available through docker compose logs -f."
     }
   ],
   "refresh": "5s",

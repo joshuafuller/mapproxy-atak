@@ -5,13 +5,15 @@ MapProxy. No previous Docker experience is required.
 
 ## What Docker runs
 
-Docker Compose starts three containers:
+Docker Compose runs three long-lived containers and one short-lived setup
+container:
 
 | Container | Job | Exposed to the LAN? |
 | --- | --- | --- |
 | `gateway` | Serves the green install page, XML files, and public tile URLs. | Yes, port 8080 by default. |
 | `mapproxy` | Renders attribution and stores finished raster tiles. | No. |
 | `tile-cache` | Caches raw OSM responses and performs conditional revalidation. | No. |
+| `configure` | Generates deployment configuration, XML, install page, and QR; exits when finished. | No. |
 
 Containers are isolated processes built from published images. Compose creates
 them, connects them to a private network, and mounts persistent storage. You do
@@ -39,13 +41,13 @@ docker compose version
 the client or cannot reach the daemon, Docker Desktop is not running or WSL
 integration is not enabled for that distribution.
 
-### 2. Install command-line prerequisites
+### 2. Install Git in WSL
 
 Inside WSL:
 
 ```bash
 sudo apt-get update
-sudo apt-get install -y curl git jq ripgrep
+sudo apt-get install -y git
 ```
 
 ### 3. Find the Windows LAN address
@@ -72,9 +74,9 @@ The ATAK device must be able to reach the Windows LAN address.
 From the repository in WSL:
 
 ```bash
-make windows-up \
-  HOST=192.168.1.50 \
-  CONTACT=https://maps.example.org/contact
+./scripts/windows-up.sh \
+  192.168.1.50 \
+  https://maps.example.org/contact
 ```
 
 Replace both example values. The contact must be an operator-controlled,
@@ -90,10 +92,11 @@ trusted `X-Forwarded-For` value to nginx. This prevents Docker Desktop's NAT
 address from collapsing every dashboard client into one entry.
 
 After a reboot, start the Docker containers and forwarder again with the same
-`make windows-up` command. Check the forwarder independently with:
+command. Check the forwarder independently with:
 
 ```bash
-make windows-forwarder-status
+powershell.exe -NoProfile -ExecutionPolicy Bypass \
+  -File "$(wslpath -w scripts/windows-forwarder.ps1)" status
 ```
 
 ### 5. Test Windows access
@@ -142,11 +145,11 @@ Install Docker Engine and the Compose plugin using Docker's official
 [installation instructions](https://docs.docker.com/engine/install/). Add your
 user to the Docker group only if that matches your host's security policy.
 
-Install the remaining tools on Ubuntu or Debian:
+Install Git on Ubuntu or Debian if it is not already present:
 
 ```bash
 sudo apt-get update
-sudo apt-get install -y curl git jq ripgrep
+sudo apt-get install -y git
 ```
 
 Find a LAN address:
@@ -158,8 +161,9 @@ ip -4 address
 Then configure and start:
 
 ```bash
-make configure HOST=192.168.1.50 CONTACT=https://maps.example.org/contact
-make up
+docker compose run --rm configure \
+  192.168.1.50 https://maps.example.org/contact
+docker compose up -d --force-recreate --wait
 ```
 
 If a host firewall is enabled, allow the configured TCP port from the trusted
@@ -168,12 +172,13 @@ LAN only.
 ## macOS
 
 Install and start [Docker Desktop for Mac](https://docs.docker.com/desktop/setup/install/mac-install/),
-then install Git and `jq` with your preferred package manager. Find the active
+then install Git with your preferred package manager. Find the active
 address under **System Settings → Network** and use it as `HOST`.
 
 ```bash
-make configure HOST=192.168.1.50 CONTACT=https://maps.example.org/contact
-make up
+docker compose run --rm configure \
+  192.168.1.50 https://maps.example.org/contact
+docker compose up -d --force-recreate --wait
 ```
 
 ## First startup
@@ -186,8 +191,6 @@ attribution, issue-report link, and operator contact in one place:
 The screenshot replaces the QR with a labeled placeholder. The real page
 generates a deployment-specific QR code under ignored `runtime/`.
 
-`make up` performs the equivalent of:
-
 ```bash
 docker compose up -d --force-recreate --wait
 ```
@@ -198,12 +201,13 @@ The options mean:
 - `--force-recreate`: load newly generated configuration files; and
 - `--wait`: return only after the health checks pass or startup fails.
 
-The first run downloads container images and takes longer than later starts.
+The first run builds the small setup image, downloads the service images, and
+takes longer than later starts. Nothing is installed directly on the host.
 
 Check the result:
 
 ```bash
-make status
+docker compose ps
 ```
 
 All three services should report `healthy`.
@@ -213,7 +217,7 @@ All three services should report `healthy`.
 ### View logs
 
 ```bash
-make logs
+docker compose logs -f
 ```
 
 Press `Ctrl+C` to stop following logs. This does not stop the containers.
@@ -221,7 +225,7 @@ Press `Ctrl+C` to stop following logs. This does not stop the containers.
 ### Stop the service
 
 ```bash
-make down
+docker compose down
 ```
 
 This removes the containers and private network but preserves both caches.
@@ -229,20 +233,23 @@ This removes the containers and private network but preserves both caches.
 On Windows/WSL, stop both the native forwarder and Docker services with:
 
 ```bash
-make windows-down
+powershell.exe -NoProfile -ExecutionPolicy Bypass \
+  -File "$(wslpath -w scripts/windows-forwarder.ps1)" stop
+docker compose down
 ```
 
 ### Start it again
 
 ```bash
-make up
+docker compose up -d --force-recreate --wait
 ```
 
 ### Change the address or port
 
 ```bash
-make configure HOST=maps.lan CONTACT=https://maps.example.org/contact PORT=9090
-make up
+docker compose run --rm configure \
+  maps.lan https://maps.example.org/contact 9090
+docker compose up -d --force-recreate --wait
 ```
 
 Changing the port also changes the generated ATAK XML, install link, and QR
@@ -251,15 +258,15 @@ code. Re-import the XML on clients after changing the host or port.
 ### Update container images
 
 ```bash
-docker compose pull
-make up
+docker compose pull --ignore-buildable
+docker compose up -d --force-recreate --wait
 ```
 
 Review release notes and retest before updating a field deployment.
 
 ## Persistent data
 
-| Data | Location | Survives `make down`? | Committed to Git? |
+| Data | Location | Survives `docker compose down`? | Committed to Git? |
 | --- | --- | --- | --- |
 | Rendered tiles | `cache_data/` | Yes | No |
 | Raw HTTP responses | Docker volume `osm_http_cache` | Yes | No |
@@ -272,7 +279,8 @@ remove `cache_data/`, `runtime/`, or `.env`.
 Inspect cache sizes:
 
 ```bash
-make cache-size
+du -sh cache_data
+docker compose exec -T tile-cache du -sh /var/cache/nginx
 ```
 
 ## Troubleshooting
@@ -292,8 +300,9 @@ shows a Server section.
 Choose another port:
 
 ```bash
-make configure HOST=192.168.1.50 CONTACT=https://maps.example.org/contact PORT=9090
-make up
+docker compose run --rm configure \
+  192.168.1.50 https://maps.example.org/contact 9090
+docker compose up -d --force-recreate --wait
 ```
 
 Use `http://192.168.1.50:9090/` on the ATAK device.
@@ -303,7 +312,7 @@ Use `http://192.168.1.50:9090/` on the ATAK device.
 Run:
 
 ```bash
-make status
+docker compose ps
 docker compose logs --no-color --tail=100
 ```
 
@@ -317,14 +326,15 @@ Check, in order:
 1. The ATAK device and host are on the same trusted LAN.
 2. The XML was generated with the host's LAN address, not `127.0.0.1` or WSL's
    private address.
-3. `make status` shows `0.0.0.0:8080->80/tcp` for the gateway.
+3. `docker compose ps` shows `0.0.0.0:8080->80/tcp` for the gateway.
 4. The host firewall permits the configured TCP port on the private LAN.
 5. Wi-Fi client isolation or guest-network isolation is disabled.
 6. A VPN is not forcing traffic away from the local network.
 
 ### The XML downloads as the wrong file type
 
-Run `make up` to reload `site-nginx.conf`, then check:
+Run `docker compose up -d --force-recreate --wait` to reload
+`site-nginx.conf`, then check:
 
 ```bash
 curl -I http://127.0.0.1:8080/sources/OpenStreetMap-MapProxy.xml
@@ -337,7 +347,7 @@ The response should contain `Content-Type: application/xml`.
 Open the tile endpoint in a host browser and inspect logs:
 
 ```bash
-make logs
+docker compose logs -f
 ```
 
 Also verify that the host has internet access, the device can reach the LAN
@@ -346,7 +356,7 @@ gateway, and the chosen layer appears in ATAK's imagery selector.
 ### Validate everything
 
 ```bash
-make validate
+./scripts/validate.sh
 ./scripts/validate.sh --live
 ```
 

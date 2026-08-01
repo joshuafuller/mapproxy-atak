@@ -11,13 +11,14 @@ the [map-layer guide](docs/ADDING-MAP-LAYERS.md) for the configuration model.
 2. Configure a local runtime:
 
    ```bash
-   make configure HOST=127.0.0.1 CONTACT=https://example.com/contact PORT=18080
+   docker compose run --rm configure \
+     127.0.0.1 https://example.com/contact 18080
    ```
 
 3. Start and validate it:
 
    ```bash
-   make up
+   docker compose up -d --force-recreate --wait
    ./scripts/validate.sh --live
    ```
 
@@ -61,7 +62,7 @@ Follow the complete checklist in
 Before opening a pull request:
 
 ```bash
-make validate
+./scripts/validate.sh
 ./scripts/validate.sh --live
 git diff --check
 ```

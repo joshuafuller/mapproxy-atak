@@ -23,12 +23,12 @@ jobs:
 
       - name: Generate test deployment
         run: |
-          if ./scripts/configure.sh \
+          if docker compose run --rm configure \
             127.0.0.1 "" 18080; then
             echo "Missing contact URL was accepted." >&2
             exit 1
           fi
-          ./scripts/configure.sh \
+          docker compose run --rm configure \
             127.0.0.1 https://example.com/contact 18080
 
       - name: Start services
@@ -54,9 +54,9 @@ jobs:
 
       - name: Start and validate optional monitoring
         run: |
-          make monitoring-up
-          make monitoring-validate
-          make monitoring-down
+          docker compose --profile monitoring up -d --wait
+          ./scripts/validate-monitoring.sh --wait
+          docker compose --profile monitoring stop grafana alloy loki
 
       - name: Confirm generated files remain untracked
         run: test -z "$(git status --porcelain --untracked-files=all)"

@@ -4,7 +4,7 @@ Describe the problem and the change.
 
 ## Validation
 
-- [ ] `make validate` passes.
+- [ ] `./scripts/validate.sh` passes.
 - [ ] Live behavior was tested when runtime behavior changed.
 - [ ] `git diff --check` passes.
 - [ ] Generated XML, QR images, runtime files, caches, private addresses, and credentials are not tracked.

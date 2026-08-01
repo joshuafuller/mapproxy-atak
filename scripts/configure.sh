@@ -44,7 +44,7 @@ if [[ "$trusted_forwarder" == "true" && "$port" == "$gateway_port" ]]; then
   exit 2
 fi
 
-for command in docker jq; do
+for command in python3 sed; do
   if ! command -v "$command" >/dev/null 2>&1; then
     echo "Required command not found: $command" >&2
     exit 1
@@ -56,7 +56,7 @@ runtime_dir="$project_dir/runtime"
 site_dir="$runtime_dir/site"
 base_url="http://${host}:${port}"
 download_url="${base_url}/sources/OpenStreetMap-MapProxy.xml"
-encoded_url="$(jq -nr --arg value "$download_url" '$value|@uri')"
+encoded_url="$(python3 -c 'import sys, urllib.parse; print(urllib.parse.quote(sys.argv[1], safe=""))' "$download_url")"
 import_uri="tak://com.atakmap.app/import?url=${encoded_url}"
 upstream_user_agent="mapproxy-atak/1.0 (+${contact_url})"
 
@@ -105,15 +105,15 @@ sed \
   "$project_dir/templates/index.html.template" > "$site_dir/index.html.tmp"
 mv "$site_dir/index.html.tmp" "$site_dir/index.html"
 
-docker run --rm \
-  -e QR_DATA="$import_uri" \
-  -e OUTPUT_UID="$(id -u)" \
-  -e OUTPUT_GID="$(id -g)" \
-  -e PIP_DISABLE_PIP_VERSION_CHECK=1 \
-  -e PIP_ROOT_USER_ACTION=ignore \
-  -v "$site_dir:/out" \
-  python:3.13-alpine \
-  sh -c 'pip install --quiet --no-cache-dir "qrcode[pil]==8.2" >/dev/null && python -c "import os,qrcode; qrcode.make(os.environ[\"QR_DATA\"]).save(\"/out/atak-import-qr.png\")" && chown "$OUTPUT_UID:$OUTPUT_GID" /out/atak-import-qr.png'
+QR_DATA="$import_uri" OUTPUT_PATH="$site_dir/atak-import-qr.png" python3 -c \
+  'import os, qrcode; qrcode.make(os.environ["QR_DATA"]).save(os.environ["OUTPUT_PATH"])'
+
+# The setup container runs as root so it works regardless of the host user's
+# numeric ID. Return generated files to the owner of the checked-out project.
+if [[ "$(id -u)" == "0" ]]; then
+  project_owner="$(stat -c '%u:%g' "$project_dir")"
+  chown -R "$project_owner" "$runtime_dir" "$project_dir/.env"
+fi
 
 printf 'Configured ATAK MapProxy\n\n'
 printf '  Install page: %s/\n' "$base_url"

@@ -9,14 +9,15 @@ answer two practical questions:
 1. How much map demand is coming from LAN clients?
 2. How often does that demand require an upstream request?
 
-Monitoring is optional. A normal `make up` starts only the map services.
+Monitoring is optional. A normal `docker compose up -d --wait` starts only the
+map services.
 
 ## Start monitoring
 
 From the repository directory:
 
 ```bash
-make monitoring-up
+docker compose --profile monitoring up -d --wait
 ```
 
 Open:
@@ -31,7 +32,7 @@ configuration, or dashboard import.
 Verify Grafana, the provisioned dashboard, Loki, and every dashboard query:
 
 ```bash
-make monitoring-validate
+./scripts/validate-monitoring.sh --wait
 ```
 
 [![Grafana operations dashboard](assets/operations-dashboard.png)](assets/operations-dashboard.png)
@@ -87,8 +88,8 @@ changes address can be counted twice.
 Native Linux normally exposes the LAN source address through Docker's published
 port. Docker Desktop on Windows forwards connections through its backend and
 can replace every source with a bridge address such as `172.20.0.1`. Use the
-documented `make windows-up` path from WSL to preserve client addresses through
-the Windows-native forwarder.
+documented `scripts/windows-up.sh` path from WSL to preserve client addresses
+through the Windows-native forwarder.
 
 ### Tile requests from LAN
 
@@ -158,7 +159,7 @@ detail and commonly require more unique tiles as users move around.
 ### Exceptions
 
 The compact exception panel shows only failures and requests taking more than
-one second. Full logs remain available with `make logs`.
+one second. Full logs remain available with `docker compose logs -f`.
 
 ## Why bandwidth savings are an estimate
 
@@ -185,7 +186,7 @@ GRAFANA_PORT=3000
 Then recreate the monitoring services:
 
 ```bash
-make monitoring-up
+docker compose --profile monitoring up -d --wait
 ```
 
 Open `http://DOCKER-HOST-LAN-IP:3000/d/mapproxy-operations`.
@@ -211,16 +212,16 @@ other hosted telemetry service.
 ## Stop monitoring
 
 ```bash
-make monitoring-down
+docker compose --profile monitoring stop grafana alloy loki
 ```
 
 This stops Grafana, Loki, and Alloy without stopping the map gateway or deleting
-monitoring data. Start them again with `make monitoring-up`.
+monitoring data. Start them again with the monitoring `up` command above.
 
 Check their state with:
 
 ```bash
-make monitoring-status
+docker compose --profile monitoring ps
 ```
 
 ## Troubleshooting
@@ -228,7 +229,7 @@ make monitoring-status
 ### Grafana page does not open
 
 ```bash
-make monitoring-status
+docker compose --profile monitoring ps
 docker compose --profile monitoring logs --tail=100 grafana loki alloy
 ```
 

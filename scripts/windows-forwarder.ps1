@@ -20,7 +20,7 @@ function Get-CaddyCommand {
         return $package.FullName
     }
 
-    throw "Caddy is not installed. Run 'make windows-forwarder-install' first."
+    throw "Caddy is not installed. Run './scripts/windows-up.sh <LAN-IP> <CONTACT-URL>' from WSL first."
 }
 
 switch ($Action) {
@@ -37,7 +37,7 @@ switch ($Action) {
     }
     "start" {
         if (-not $ConfigPath -or -not (Test-Path -LiteralPath $ConfigPath)) {
-            throw "Generated Caddyfile not found. Run 'make configure-windows-forwarder HOST=<LAN-IP>' first."
+            throw "Generated Caddyfile not found. Run the Docker configure command documented in docs/DOCKER.md first."
         }
         $caddy = Get-CaddyCommand
         & $caddy validate --config $ConfigPath --adapter caddyfile

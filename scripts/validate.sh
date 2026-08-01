@@ -6,7 +6,7 @@ cd "$project_dir"
 
 for file in runtime/mapproxy.yaml runtime/upstream-nginx.conf runtime/real-ip.conf runtime/Caddyfile runtime/OpenStreetMap-MapProxy.xml runtime/site/index.html runtime/site/atak-import-qr.png; do
   if [[ ! -f "$file" ]]; then
-    echo "Missing generated file: $file (run scripts/configure.sh first)" >&2
+    echo "Missing generated file: $file (run 'docker compose run --rm configure <LAN-IP> <CONTACT-URL>' first)" >&2
     exit 1
   fi
 done

@@ -1,5 +1,14 @@
 ---
 services:
+  configure:
+    profiles: [setup]
+    build:
+      context: .
+      dockerfile: docker/configurator.Dockerfile
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+
   tile-cache:
     image: nginx:1.28-alpine
     restart: unless-stopped
