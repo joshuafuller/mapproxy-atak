@@ -13,6 +13,31 @@
 
 ---
 
+## What is this project?
+
+ATAK MapProxy is a self-hosted map server for devices sharing a local network.
+It runs with Docker on one Windows, Linux, or macOS host and gives ATAK clients
+one LAN address for OpenStreetMap raster tiles.
+
+When a client requests a tile, the server checks its local caches first. A
+missing or expired tile is retrieved upstream only when somebody is actively
+viewing it; repeat requests from other clients stay on the LAN. This is useful
+when a team shares constrained backhaul such as Starlink, satellite, cellular,
+or a temporary incident-network uplink.
+
+The project includes:
+
+- a MapProxy tile endpoint with visible OpenStreetMap attribution;
+- a generated install page, ATAK XML source, deep link, and deployment-specific
+  QR code;
+- two persistent cache layers for rendered tiles and upstream responses;
+- Windows/WSL forwarding that preserves real LAN client addresses; and
+- an optional real-time Grafana operations dashboard.
+
+It is not a bulk downloader, an offline-map archive builder, or a public tile
+service. Its public OpenStreetMap configuration is demand-driven and intended
+only for normal interactive viewing under the upstream usage policy.
+
 ## Why run it locally?
 
 When several field devices view the same area, they should not each download
