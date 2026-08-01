@@ -18,8 +18,18 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Install validation dependencies
+        run: sudo apt-get update && sudo apt-get install --yes ripgrep
+
       - name: Generate test deployment
-        run: ./scripts/configure.sh 127.0.0.1 https://example.com/contact 18080
+        run: |
+          if ./scripts/configure.sh \
+            127.0.0.1 "" 18080; then
+            echo "Missing contact URL was accepted." >&2
+            exit 1
+          fi
+          ./scripts/configure.sh \
+            127.0.0.1 https://example.com/contact 18080
 
       - name: Start services
         run: docker compose up -d --wait --wait-timeout 90

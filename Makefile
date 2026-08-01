@@ -6,15 +6,18 @@ BACKEND_PORT ?= 18080
 .PHONY: configure configure-windows-forwarder windows-up windows-down up down restart logs status validate cache-size monitoring-up monitoring-down monitoring-status monitoring-validate windows-forwarder-install windows-forwarder-up windows-forwarder-down windows-forwarder-status
 
 configure:
-	@test -n "$(HOST)" || (echo "Usage: make configure HOST=192.168.1.50 [CONTACT=https://example.com/contact] [PORT=8080]" >&2; exit 2)
+	@test -n "$(HOST)" || (echo "Usage: make configure HOST=192.168.1.50 CONTACT=https://example.com/contact [PORT=8080]" >&2; exit 2)
+	@test -n "$(CONTACT)" || (echo "CONTACT is required when using the public OpenStreetMap tile service." >&2; exit 2)
 	./scripts/configure.sh "$(HOST)" "$(CONTACT)" "$(PORT)"
 
 configure-windows-forwarder:
-	@test -n "$(HOST)" || (echo "Usage: make configure-windows-forwarder HOST=192.168.1.50 [CONTACT=https://example.com/contact] [PORT=8080] [BACKEND_PORT=18080]" >&2; exit 2)
+	@test -n "$(HOST)" || (echo "Usage: make configure-windows-forwarder HOST=192.168.1.50 CONTACT=https://example.com/contact [PORT=8080] [BACKEND_PORT=18080]" >&2; exit 2)
+	@test -n "$(CONTACT)" || (echo "CONTACT is required when using the public OpenStreetMap tile service." >&2; exit 2)
 	./scripts/configure.sh "$(HOST)" "$(CONTACT)" "$(PORT)" 127.0.0.1 "$(BACKEND_PORT)" true
 
 windows-up:
-	@test -n "$(HOST)" || (echo "Usage: make windows-up HOST=192.168.1.50 [CONTACT=https://example.com/contact]" >&2; exit 2)
+	@test -n "$(HOST)" || (echo "Usage: make windows-up HOST=192.168.1.50 CONTACT=https://example.com/contact" >&2; exit 2)
+	@test -n "$(CONTACT)" || (echo "CONTACT is required when using the public OpenStreetMap tile service." >&2; exit 2)
 	$(MAKE) windows-forwarder-install
 	$(MAKE) configure-windows-forwarder HOST="$(HOST)" CONTACT="$(CONTACT)" PORT="$(PORT)" BACKEND_PORT="$(BACKEND_PORT)"
 	$(MAKE) up

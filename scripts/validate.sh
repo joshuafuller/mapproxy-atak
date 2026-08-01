@@ -96,6 +96,8 @@ docker run --rm \
 rg --quiet '© OpenStreetMap contributors' runtime/OpenStreetMap-MapProxy.xml
 rg --quiet '© OpenStreetMap contributors' runtime/site/index.html
 rg --quiet 'https://www.openstreetmap.org/copyright' runtime/site/index.html
+rg --quiet 'https://www.openstreetmap.org/fixthemap' runtime/site/index.html
+rg --quiet '>Operator contact</a>' runtime/site/index.html
 rg --quiet 'watermark:' runtime/mapproxy.yaml
 rg --quiet '© OpenStreetMap contributors' runtime/mapproxy.yaml
 rg --quiet 'refresh_before:' runtime/mapproxy.yaml
@@ -104,7 +106,11 @@ rg --quiet 'expires_hours: 24' runtime/mapproxy.yaml
 rg --quiet 'proxy_cache_revalidate on;' runtime/upstream-nginx.conf
 rg --quiet 'proxy_cache_valid 200 7d;' runtime/upstream-nginx.conf
 rg --quiet 'https://tile.openstreetmap.org' runtime/upstream-nginx.conf
-rg --quiet 'User-Agent "MapProxyCache/1.0' runtime/upstream-nginx.conf
+rg --quiet 'User-Agent "mapproxy-atak/1\.0 \(\+https://' runtime/upstream-nginx.conf
+if rg --quiet '^  demo:' runtime/mapproxy.yaml; then
+  echo "The browser demo must remain disabled because browser Referer headers are not forwarded upstream." >&2
+  exit 1
+fi
 if rg --quiet 'spacing: wide' runtime/mapproxy.yaml; then
   echo "Watermark must appear on every tile; wide spacing is not allowed." >&2
   exit 1
@@ -121,7 +127,9 @@ if [[ "${1:-}" == "--live" ]]; then
   port="${port:-8080}"
   base="http://127.0.0.1:${port}"
   curl --fail --silent --show-error --max-time 5 "${base}/healthz" >/dev/null
-  curl --fail --silent --show-error --max-time 5 "${base}/mapproxy/demo/" >/dev/null
+  curl --fail --silent --show-error --max-time 5 "${base}/mapproxy/tms/1.0.0/" >/dev/null
+  demo_status="$(curl --silent --output /dev/null --write-out '%{http_code}' --max-time 5 "${base}/mapproxy/demo/")"
+  [[ "$demo_status" == "404" ]] || { echo "Browser demo unexpectedly enabled (HTTP ${demo_status})." >&2; exit 1; }
   docker compose exec -T tile-cache wget -q -T 3 -O /dev/null http://127.0.0.1/healthz
   content_type="$(curl --fail --silent --show-error --max-time 5 --head "${base}/sources/OpenStreetMap-MapProxy.xml" | tr -d '\r' | awk 'BEGIN{IGNORECASE=1} /^Content-Type:/ {print $2}')"
   [[ "$content_type" == "application/xml" ]] || { echo "Unexpected XML Content-Type: $content_type" >&2; exit 1; }

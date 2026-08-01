@@ -65,7 +65,7 @@
       <div class="detail"><small>Tile cache</small><strong>Persistent</strong></div>
     </div>
     <div class="endpoint">Tile endpoint: <code>__PUBLIC_BASE_URL__/mapproxy/tiles/osm/webmercator/{z}/{x}/{y}.png</code></div>
-    <footer>Map data and tiles <a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>. Do not bulk-seed from the public OSM tile service.</footer>
+    <footer>Map data and tiles <a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>. <a href="https://www.openstreetmap.org/fixthemap">Report a map issue</a> · <a href="__CONTACT_URL__">Operator contact</a>. Do not bulk-seed from the public OSM tile service.</footer>
   </main>
 </body>
 </html>

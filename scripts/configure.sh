@@ -8,9 +8,10 @@ gateway_bind_address="${4:-0.0.0.0}"
 gateway_port="${5:-$port}"
 trusted_forwarder="${6:-false}"
 
-if [[ -z "$host" ]]; then
-  echo "Usage: $0 <LAN-host-or-IP> [contact-url] [port]" >&2
+if [[ -z "$host" || -z "$contact_url" ]]; then
+  echo "Usage: $0 <LAN-host-or-IP> <contact-url> [port]" >&2
   echo "Example: $0 192.168.1.50 https://example.com/contact 8080" >&2
+  echo "A monitored HTTPS contact page is required for the public OpenStreetMap tile service." >&2
   exit 2
 fi
 
@@ -18,7 +19,7 @@ if [[ ! "$host" =~ ^[A-Za-z0-9.-]+$ ]]; then
   echo "Host must be an IPv4 address or DNS name without a scheme or path." >&2
   exit 2
 fi
-if [[ -n "$contact_url" && ! "$contact_url" =~ ^https://[A-Za-z0-9./_?=%+-]+$ ]]; then
+if [[ ! "$contact_url" =~ ^https://[A-Za-z0-9./_?=%+-]+$ ]]; then
   echo "Contact must be an HTTPS URL without spaces." >&2
   exit 2
 fi
@@ -57,10 +58,7 @@ base_url="http://${host}:${port}"
 download_url="${base_url}/sources/OpenStreetMap-MapProxy.xml"
 encoded_url="$(jq -nr --arg value "$download_url" '$value|@uri')"
 import_uri="tak://com.atakmap.app/import?url=${encoded_url}"
-upstream_user_agent="MapProxyCache/1.0"
-if [[ -n "$contact_url" ]]; then
-  upstream_user_agent+=" (+${contact_url})"
-fi
+upstream_user_agent="mapproxy-atak/1.0 (+${contact_url})"
 
 mkdir -p "$site_dir"
 
@@ -103,6 +101,7 @@ done
 sed \
   -e "s|__PUBLIC_BASE_URL__|${base_url}|g" \
   -e "s|__IMPORT_URI__|${import_uri}|g" \
+  -e "s|__CONTACT_URL__|${contact_url}|g" \
   "$project_dir/templates/index.html.template" > "$site_dir/index.html.tmp"
 mv "$site_dir/index.html.tmp" "$site_dir/index.html"
 
@@ -119,9 +118,5 @@ docker run --rm \
 printf 'Configured ATAK MapProxy\n\n'
 printf '  Install page: %s/\n' "$base_url"
 printf '  ATAK XML:    %s\n' "$download_url"
-if [[ -n "$contact_url" ]]; then
-  printf '  OSM contact: %s\n\n' "$contact_url"
-else
-  printf '  OSM contact: not configured\n\n'
-fi
+printf '  OSM contact: %s\n\n' "$contact_url"
 printf 'Start with: docker compose up -d --wait\n'

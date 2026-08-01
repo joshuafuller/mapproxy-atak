@@ -1,6 +1,5 @@
 ---
 services:
-  demo:
   tms:
     # ATAK uses XYZ/Google-style tile rows (0,0 is north-west).
     origin: nw

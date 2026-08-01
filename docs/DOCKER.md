@@ -77,8 +77,11 @@ make windows-up \
   CONTACT=https://maps.example.org/contact
 ```
 
-Replace both example values. The contact should be an operator-controlled,
-monitored HTTPS page when the public OSM service is used.
+Replace both example values. The contact must be an operator-controlled,
+monitored HTTPS page when the public OSM service is used. Configuration stops
+if it is missing. The URL is included in the stable upstream service identity
+and linked as **Operator contact** on the generated install page; personal
+contact information is not stored in the repository.
 
 This Windows entry point installs Caddy with Windows Package Manager, binds the
 Docker gateway to `127.0.0.1:18080`, and exposes the public port through a

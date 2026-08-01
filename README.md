@@ -81,8 +81,11 @@ make configure HOST=192.168.1.50 CONTACT=https://maps.example.org/contact
 make up
 ```
 
-Replace the example address and contact URL. When using the public OSM tile
-service, the contact should be an operator-controlled, monitored HTTPS page.
+Replace the example address and contact URL. Configuration intentionally fails
+without an operator-controlled, monitored HTTPS contact page. The generated
+upstream identity is `mapproxy-atak/1.0 (+CONTACT_URL)`, allowing OSM operators
+to identify the service and reach its operator without embedding personal
+details in this repository.
 
 For complete Windows, Linux, macOS, firewall, and troubleshooting instructions,
 read the [Docker and network guide](docs/DOCKER.md).
@@ -151,11 +154,16 @@ Docker volume `osm_http_cache`. A normal `make down` preserves both.
 > For offline coverage, use data you host or a provider that explicitly permits
 > downloading and redistribution.
 
+The public OSM source is for demand-driven, human-interactive viewing only. For
+sustained operational demand, preloaded coverage, or guaranteed availability,
+use a suitable tile provider or self-hosted data instead.
+
 OpenStreetMap attribution appears in the layer name, install page, and every
 rendered tile. Before deployment, review the current
 [OSM tile usage policy](https://operations.osmfoundation.org/policies/tiles/),
 [OSMF attribution guidelines](https://osmfoundation.org/wiki/Licence/Attribution_Guidelines),
-and [OSM copyright page](https://www.openstreetmap.org/copyright).
+[OSM copyright page](https://www.openstreetmap.org/copyright), and
+[report-a-map-issue page](https://www.openstreetmap.org/fixthemap).
 
 ## Common commands
 
