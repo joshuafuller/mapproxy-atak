@@ -178,6 +178,14 @@ make up
 
 ## First startup
 
+The generated LAN page presents the import action, XML download, cache status,
+attribution, issue-report link, and operator contact in one place:
+
+[![Generated LAN install page](assets/install-page.png)](assets/install-page.png)
+
+The screenshot replaces the QR with a labeled placeholder. The real page
+generates a deployment-specific QR code under ignored `runtime/`.
+
 `make up` performs the equivalent of:
 
 ```bash

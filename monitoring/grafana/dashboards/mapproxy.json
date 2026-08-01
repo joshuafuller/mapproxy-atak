@@ -305,7 +305,7 @@
             "uid": "loki"
           },
           "editorMode": "code",
-          "expr": "100 * (1 - sum(count_over_time({job=\"mapproxy\",service=\"tile-cache\"} | json | cache=~\"MISS|EXPIRED|REVALIDATED|STALE\" [5m])) / sum(count_over_time({job=\"mapproxy\",service=\"gateway\"} | json | uri=~\"/mapproxy/tiles/.*\" [5m]))) or vector(0)",
+          "expr": "100 * (1 - (sum(count_over_time({job=\"mapproxy\",service=\"tile-cache\"} | json | cache=~\"MISS|EXPIRED|REVALIDATED|STALE\" [5m])) or vector(0)) / sum(count_over_time({job=\"mapproxy\",service=\"gateway\"} | json | uri=~\"/mapproxy/tiles/.*\" [5m]))) or vector(0)",
           "queryType": "instant",
           "refId": "A"
         }

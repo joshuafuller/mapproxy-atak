@@ -11,6 +11,13 @@ for file in runtime/mapproxy.yaml runtime/upstream-nginx.conf runtime/real-ip.co
   fi
 done
 
+for screenshot in docs/assets/install-page.png docs/assets/operations-dashboard.png; do
+  if [[ ! -s "$screenshot" ]]; then
+    echo "Missing documentation screenshot: $screenshot" >&2
+    exit 1
+  fi
+done
+
 bash -n scripts/*.sh
 jq empty monitoring/grafana/dashboards/mapproxy.json
 jq -e '

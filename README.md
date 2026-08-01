@@ -90,6 +90,13 @@ details in this repository.
 For complete Windows, Linux, macOS, firewall, and troubleshooting instructions,
 read the [Docker and network guide](docs/DOCKER.md).
 
+### Generated LAN install page
+
+[![Generated ATAK MapProxy LAN install page](docs/assets/install-page.png)](docs/assets/install-page.png)
+
+*The QR area is intentionally replaced in this screenshot. Every deployment
+generates its own QR code for that LAN address.*
+
 ## Add the map to ATAK
 
 On the ATAK device, open the install page:
@@ -120,6 +127,10 @@ make monitoring-up
 
 Open [http://127.0.0.1:3000/d/mapproxy-operations](http://127.0.0.1:3000/d/mapproxy-operations).
 
+[![Grafana operations dashboard showing cache reuse](docs/assets/operations-dashboard.png)](docs/assets/operations-dashboard.png)
+
+*Dashboard shown with synthetic client activity against already-cached tiles.*
+
 The Grafana dashboard is organized into seven sections:
 
 - live 10-second demand;
@@ -145,6 +156,7 @@ privacy, retention, and LAN access.
 | Rendered tile cache | Refreshes a viewed tile after seven days. |
 | Raw HTTP cache | Honors upstream freshness headers; seven days is the fallback. |
 | Inactive raw response | Eligible for removal after 90 days. |
+| Upstream protocol | HTTP/1.1; HTTP/2 and HTTP/3 are not currently supported. |
 
 Rendered tiles persist in ignored `cache_data/`. Raw responses persist in the
 Docker volume `osm_http_cache`. A normal `make down` preserves both.

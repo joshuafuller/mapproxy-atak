@@ -34,6 +34,11 @@ Verify Grafana, the provisioned dashboard, Loki, and every dashboard query:
 make monitoring-validate
 ```
 
+[![Grafana operations dashboard](assets/operations-dashboard.png)](assets/operations-dashboard.png)
+
+The screenshot uses synthetic documentation-range client activity and
+already-cached tiles; it contains no field-client addresses or event data.
+
 ## What starts
 
 | Service | Purpose |
