@@ -1,0 +1,60 @@
+---
+name: CI
+
+'on':
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Generate test deployment
+        run: ./scripts/configure.sh 127.0.0.1 https://example.com/contact 18080
+
+      - name: Start services
+        run: docker compose up -d --wait --wait-timeout 90
+
+      - name: Validate configuration and live endpoints
+        run: ./scripts/validate.sh --live
+
+      - name: Check Windows helper syntax
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            "$PWD/scripts/windows-forwarder.ps1",
+            [ref]$tokens,
+            [ref]$errors
+          ) | Out-Null
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object { Write-Error $_ }
+            exit 1
+          }
+
+      - name: Start and validate optional monitoring
+        run: |
+          make monitoring-up
+          make monitoring-validate
+          make monitoring-down
+
+      - name: Confirm generated files remain untracked
+        run: test -z "$(git status --porcelain --untracked-files=all)"
+
+      - name: Show logs on failure
+        if: failure()
+        run: docker compose --profile monitoring logs --no-color
+
+      - name: Stop services
+        if: always()
+        run: docker compose --profile monitoring down --volumes

@@ -1,0 +1,70 @@
+---
+services:
+  demo:
+  tms:
+    # ATAK uses XYZ/Google-style tile rows (0,0 is north-west).
+    origin: nw
+    use_grid_names: true
+  wmts:
+    restful: true
+    kvp: true
+  wms:
+    srs: ['EPSG:3857', 'EPSG:4326']
+    image_formats: ['image/png']
+    md:
+      title: ATAK OpenStreetMap MapProxy
+      abstract: Locally cached OpenStreetMap Standard tiles for ATAK
+
+layers:
+  - name: osm
+    title: OpenStreetMap Standard - © OpenStreetMap contributors
+    sources: [osm_attributed_cache_v2]
+
+caches:
+  osm_attributed_cache_v2:
+    grids: [webmercator]
+    sources: [osm_source]
+    format: image/png
+    request_format: image/png
+    # One requested ATAK tile results in at most one upstream tile request.
+    meta_size: [1, 1]
+    meta_buffer: 0
+    # Refresh on demand after seven days. There is no background crawler or
+    # pre-seeding: only a tile that somebody views can cause an upstream check.
+    refresh_before:
+      days: 7
+    # Attribution is intentionally baked into every cached tile. Do not remove.
+    watermark:
+      text: "© OpenStreetMap contributors"
+      opacity: 90
+      font_size: 11
+      color: '#202020'
+    cache:
+      type: file
+      directory_layout: tms
+
+sources:
+  osm_source:
+    type: tile
+    grid: webmercator
+    # The private HTTP cache honors upstream freshness headers and performs
+    # conditional revalidation before MapProxy renders the attribution.
+    url: http://tile-cache/tiles/%(z)s/%(x)s/%(y)s.png
+    concurrent_requests: 4
+    http:
+      client_timeout: 30
+
+grids:
+  webmercator:
+    base: GLOBAL_WEBMERCATOR
+    num_levels: 20
+
+globals:
+  cache:
+    base_dir: /mapproxy/config/cache_data
+    lock_dir: /mapproxy/config/cache_data/locks
+    tile_lock_dir: /mapproxy/config/cache_data/tile_locks
+  tiles:
+    # Let LAN clients revalidate daily. Most checks stay local, while the
+    # seven-day cache rule above controls when OSM can be contacted again.
+    expires_hours: 24

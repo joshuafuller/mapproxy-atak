@@ -1,0 +1,145 @@
+---
+services:
+  tile-cache:
+    image: nginx:1.28-alpine
+    restart: unless-stopped
+    volumes:
+      - ./runtime/upstream-nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - osm_http_cache:/var/cache/nginx
+    expose:
+      - "80"
+    healthcheck:
+      test:
+        - CMD
+        - wget
+        - -q
+        - -T
+        - "3"
+        - -O
+        - /dev/null
+        - http://127.0.0.1/healthz
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    logging:
+      driver: local
+      options:
+        max-size: 20m
+        max-file: "3"
+
+  mapproxy:
+    image: ghcr.io/mapproxy/mapproxy/mapproxy:2.0.0-nginx
+    restart: unless-stopped
+    depends_on:
+      tile-cache:
+        condition: service_healthy
+    environment:
+      # Stable ETags let ATAK validate its own tile cache efficiently.
+      UWSGI_PROCESSES: "1"
+      UWSGI_THREADS: "10"
+    expose:
+      - "80"
+    volumes:
+      - ./runtime/mapproxy.yaml:/mapproxy/config/mapproxy.yaml:ro
+      - ./cache_data:/mapproxy/config/cache_data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          python -c "import urllib.request;
+          urllib.request.urlopen('http://127.0.0.1/mapproxy/demo/', timeout=3)"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  gateway:
+    image: nginx:1.28-alpine
+    restart: unless-stopped
+    depends_on:
+      mapproxy:
+        condition: service_healthy
+    ports:
+      - "${MAPPROXY_BIND_ADDRESS:-0.0.0.0}:${MAPPROXY_PORT:-8080}:80"
+    volumes:
+      - ./runtime:/srv/runtime:ro
+      - ./runtime/real-ip.conf:/etc/nginx/snippets/real-ip.conf:ro
+      - ./site-nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    healthcheck:
+      test:
+        - CMD
+        - wget
+        - -q
+        - -T
+        - "3"
+        - -O
+        - /dev/null
+        - http://127.0.0.1/healthz
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    logging:
+      driver: local
+      options:
+        max-size: 20m
+        max-file: "3"
+
+  loki:
+    profiles: [monitoring]
+    image: grafana/loki:3.7.2
+    restart: unless-stopped
+    command: -config.file=/etc/loki/local-config.yaml
+    expose:
+      - "3100"
+    volumes:
+      - ./monitoring/loki.yaml:/etc/loki/local-config.yaml:ro
+      - loki_data:/loki
+
+  alloy:
+    profiles: [monitoring]
+    image: grafana/alloy:v1.18.0
+    restart: unless-stopped
+    command:
+      - run
+      - --storage.path=/var/lib/alloy/data
+      - /etc/alloy/config.alloy
+    depends_on:
+      - loki
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./monitoring/alloy.config:/etc/alloy/config.alloy:ro
+      - alloy_data:/var/lib/alloy/data
+
+  grafana:
+    profiles: [monitoring]
+    image: grafana/grafana:13.1.0
+    restart: unless-stopped
+    depends_on:
+      - loki
+      - alloy
+    ports:
+      - "${GRAFANA_BIND_ADDRESS:-127.0.0.1}:${GRAFANA_PORT:-3000}:3000"
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+      GF_ANALYTICS_CHECK_FOR_PLUGIN_UPDATES: "false"
+      GF_PLUGINS_PREINSTALL_DISABLED: "true"
+      GF_PLUGINS_PLUGIN_ADMIN_ENABLED: "false"
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: >-
+        /var/lib/grafana/dashboards/mapproxy.json
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+
+volumes:
+  osm_http_cache:
+  loki_data:
+  alloy_data:
+  grafana_data:

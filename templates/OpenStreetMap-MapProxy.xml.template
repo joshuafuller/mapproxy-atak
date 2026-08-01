@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<customMapSource>
+    <name>OSM Standard — © OpenStreetMap contributors (Local MapProxy)</name>
+    <minZoom>0</minZoom>
+    <maxZoom>19</maxZoom>
+    <tileType>png</tileType>
+    <tileUpdate>IfNoneMatch</tileUpdate>
+    <url>__PUBLIC_BASE_URL__/mapproxy/tiles/osm/webmercator/{$z}/{$x}/{$y}.png</url>
+    <backgroundColor>#000000</backgroundColor>
+    <ignoreErrors>false</ignoreErrors>
+    <serverParts></serverParts>
+</customMapSource>

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101814">
+  <title>ATAK Local Maps</title>
+  <style>
+    :root { color-scheme:dark; --bg:#0b100d; --panel:#131d17; --line:#2b4033; --ink:#edf7ef; --muted:#a9bcae; --green:#69dd8b; --green2:#173c24; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; background:radial-gradient(circle at 20% 0,#193022 0,transparent 38%),var(--bg); color:var(--ink); font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif; }
+    main { width:min(780px,calc(100% - 32px)); margin:0 auto; padding:48px 0; }
+    .brand { display:flex; align-items:center; gap:12px; }
+    .mark { display:grid; place-items:center; width:42px; height:42px; border:1px solid #477157; border-radius:12px; background:#14251a; color:var(--green); font-size:1.35rem; }
+    .eyebrow { color:var(--green); font-size:.76rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+    .live { display:inline-flex; align-items:center; gap:7px; margin-top:8px; color:#bfefcb; font-size:.82rem; }
+    .live::before { content:""; width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 14px var(--green); }
+    h1 { margin:.65rem 0 .5rem; font-size:clamp(2rem,7vw,3.55rem); line-height:1.02; letter-spacing:-.035em; }
+    .lede { color:var(--muted); font-size:1.08rem; max-width:60ch; }
+    .card { display:grid; grid-template-columns:1fr 220px; gap:32px; align-items:center; margin-top:32px; padding:28px; border:1px solid var(--line); border-radius:18px; background:rgba(19,29,23,.92); box-shadow:0 20px 60px #0006; }
+    h2 { margin:0 0 .35rem; font-size:1.45rem; }
+    .meta { color:var(--muted); margin:0 0 1.35rem; }
+    .actions { display:flex; flex-wrap:wrap; gap:10px; }
+    .button { display:inline-block; padding:.8rem 1rem; border:1px solid var(--line); border-radius:9px; color:var(--ink); text-decoration:none; font-weight:750; transition:transform .15s ease,border-color .15s ease; }
+    .button:hover { transform:translateY(-1px); border-color:#648d70; }
+    .button.primary { background:var(--green); border-color:var(--green); color:#07120a; }
+    .qr { width:220px; height:220px; padding:10px; border-radius:12px; background:#fff; }
+    .hint { color:var(--muted); font-size:.88rem; margin:.75rem 0 0; }
+    .details { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:18px; }
+    .detail { min-width:0; padding:14px 16px; border:1px solid var(--line); border-radius:12px; background:var(--panel); }
+    .detail small { display:block; color:var(--muted); margin-bottom:3px; }
+    .detail strong { color:#d8f5df; }
+    .endpoint { margin-top:10px; padding:14px 16px; border-left:3px solid var(--green); background:var(--green2); color:#ccebd5; border-radius:0 10px 10px 0; }
+    code { overflow-wrap:anywhere; color:#c7f5d4; }
+    footer { color:var(--muted); margin-top:24px; font-size:.83rem; }
+    footer a { color:#c7f5d4; }
+    @media (max-width:650px) { main{padding:28px 0}.card{grid-template-columns:1fr}.qr{order:-1;width:min(100%,280px);height:auto;justify-self:center}.details{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="brand">
+      <div class="mark" aria-hidden="true">⌖</div>
+      <div><div class="eyebrow">Local map service</div><div class="live">MapProxy online</div></div>
+    </div>
+    <h1>OpenStreetMap for ATAK</h1>
+    <p class="lede">Share one persistent map cache across the LAN. On constrained links such as Starlink, a missing tile crosses the uplink once and nearby clients reuse it locally.</p>
+
+    <section class="card">
+      <div>
+        <h2>OSM Standard — © OpenStreetMap contributors (Local MapProxy)</h2>
+        <p class="meta">Zoom 0–19 · PNG · LAN local</p>
+        <div class="actions">
+          <a class="button primary" href="__IMPORT_URI__">Add to ATAK</a>
+          <a class="button" href="/sources/OpenStreetMap-MapProxy.xml" download>Download XML</a>
+        </div>
+        <p class="hint">On the ATAK device, tap Add to ATAK. From another screen, scan the QR code.</p>
+      </div>
+      <img class="qr" src="/atak-import-qr.png" alt="QR code to import the local OpenStreetMap source into ATAK">
+    </section>
+
+    <div class="details">
+      <div class="detail"><small>Backhaul</small><strong>Fetch missing tiles</strong></div>
+      <div class="detail"><small>LAN reuse</small><strong>Share across clients</strong></div>
+      <div class="detail"><small>Tile cache</small><strong>Persistent</strong></div>
+    </div>
+    <div class="endpoint">Tile endpoint: <code>__PUBLIC_BASE_URL__/mapproxy/tiles/osm/webmercator/{z}/{x}/{y}.png</code></div>
+    <footer>Map data and tiles <a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>. Do not bulk-seed from the public OSM tile service.</footer>
+  </main>
+</body>
+</html>

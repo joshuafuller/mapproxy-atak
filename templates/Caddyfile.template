@@ -1,0 +1,7 @@
+{
+	auto_https off
+}
+
+:__PUBLIC_PORT__ {
+	reverse_proxy 127.0.0.1:__BACKEND_PORT__
+}

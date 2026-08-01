@@ -1,0 +1,1451 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": false,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": true,
+  "panels": [
+    {
+      "id": 100,
+      "type": "row",
+      "title": "LIVE PULSE  //  LAST 10 SECONDS",
+      "collapsed": false,
+      "panels": [],
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 1,
+        "w": 6,
+        "h": 4
+      },
+      "id": 1,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "count(sum by (client) (count_over_time({job=\"mapproxy\",service=\"gateway\"} | json | uri=~\"/mapproxy/tiles/.*\" [10s]))) or vector(0)",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ],
+      "title": "Active client addresses (10 sec)",
+      "type": "stat",
+      "description": "Distinct source IP addresses that requested tiles in the last 10 seconds. This is observed network activity, not an authenticated session count."
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 6,
+        "y": 1,
+        "w": 6,
+        "h": 4
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "sum(count_over_time({job=\"mapproxy\",service=\"gateway\"} | json | uri=~\"/mapproxy/tiles/.*\" [10s])) or vector(0)",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ],
+      "title": "Tile requests from LAN (10 sec)",
+      "type": "stat",
+      "description": "Tile requests received from all LAN clients during the last 10 seconds, whether served from cache or fetched upstream."
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "orange"
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 1,
+        "w": 6,
+        "h": 4
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "sum(count_over_time({job=\"mapproxy\",service=\"tile-cache\"} | json | cache=~\"MISS|EXPIRED|REVALIDATED|STALE\" [10s])) or vector(0)",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ],
+      "title": "Requests sent upstream (10 sec)",
+      "type": "stat",
+      "description": "Requests that reached the OpenStreetMap tile service because the source tile was missing, stale, or being revalidated."
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "purple"
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 18,
+        "y": 1,
+        "w": 6,
+        "h": 4
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "sum(sum_over_time({job=\"mapproxy\",service=\"gateway\"} | json | uri=~\"/mapproxy/tiles/.*\" | unwrap bytes | __error__=\"\" [10s])) or vector(0)",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ],
+      "title": "Tile data served to LAN (10 sec)",
+      "type": "stat",
+      "description": "Tile response-body bytes sent to LAN clients during the last 10 seconds. Network, VPN, and radio overhead are not included."
+    },
+    {
+      "id": 101,
+      "type": "row",
+      "title": "EFFICIENCY  //  ROLLING FIVE-MINUTE SUMMARY",
+      "collapsed": false,
+      "panels": [],
+      "gridPos": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 50
+              },
+              {
+                "color": "green",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 6,
+        "w": 6,
+        "h": 4
+      },
+      "id": 14,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "100 * (1 - sum(count_over_time({job=\"mapproxy\",service=\"tile-cache\"} | json | cache=~\"MISS|EXPIRED|REVALIDATED|STALE\" [5m])) / sum(count_over_time({job=\"mapproxy\",service=\"gateway\"} | json | uri=~\"/mapproxy/tiles/.*\" [5m]))) or vector(0)",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ],
+      "title": "Estimated requests kept on LAN (5 min)",
+      "type": "stat",
+      "description": "Estimated percentage of LAN tile requests that did not require an upstream request. Higher is better. Calculated from LAN requests versus observed upstream contacts."
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 6,
+        "y": 6,
+        "w": 6,
+        "h": 4
+      },
+      "id": 15,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "(((sum(sum_over_time({job=\"mapproxy\",service=\"gateway\"} | json | uri=~\"/mapproxy/tiles/.*\" | unwrap bytes | __error__=\"\" [5m])) or vector(0)) - (sum(sum_over_time({job=\"mapproxy\",service=\"tile-cache\"} | json | cache=~\"MISS|EXPIRED|REVALIDATED|STALE\" | unwrap upstream_bytes | __error__=\"\" [5m])) or vector(0))) > 0) or vector(0)",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ],
+      "title": "Estimated tile data kept off uplink (5 min)",
+      "type": "stat",
+      "description": "LAN tile-body bytes minus observed upstream tile-body bytes, lower-bounded at zero. This is an application-layer estimate and can be affected by tile re-encoding."
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "unit": "s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.5
+              },
+              {
+                "color": "red",
+                "value": 2
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 6,
+        "w": 6,
+        "h": 4
+      },
+      "id": 16,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "max(quantile_over_time(0.95, {job=\"mapproxy\",service=\"gateway\"} | json | uri=~\"/mapproxy/tiles/.*\" | unwrap request_time | __error__=\"\" [5m])) or vector(0)",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ],
+      "title": "Slow-end tile response (p95, 5 min)",
+      "type": "stat",
+      "description": "Ninety-five percent of tile responses completed within this time; the slowest five percent took longer."
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 18,
+        "y": 6,
+        "w": 6,
+        "h": 4
+      },
+      "id": 17,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "sum(count_over_time({job=\"mapproxy\",service=\"gateway\"} | json | uri=~\"/mapproxy/tiles/.*\" | status=~\"4..|5..\" [5m])) or vector(0)",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ],
+      "title": "Failed tile responses (5 min)",
+      "type": "stat",
+      "description": "Tile requests that returned an HTTP 4xx or 5xx response during the last five minutes."
+    },
+    {
+      "id": 102,
+      "type": "row",
+      "title": "TRAFFIC & BANDWIDTH  //  LIVE 10-SECOND BUCKETS",
+      "collapsed": false,
+      "panels": [],
+      "gridPos": {
+        "x": 0,
+        "y": 10,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 11,
+        "w": 12,
+        "h": 8
+      },
+      "id": 5,
+      "interval": "10s",
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "sum(count_over_time({job=\"mapproxy\",service=\"gateway\"} | json | uri=~\"/mapproxy/tiles/.*\" [10s])) or vector(0)",
+          "legendFormat": "LAN requests / 10 sec",
+          "queryType": "range",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "sum(count_over_time({job=\"mapproxy\",service=\"tile-cache\"} | json | cache=~\"MISS|EXPIRED|REVALIDATED|STALE\" [10s])) or vector(0)",
+          "legendFormat": "Upstream contacts / 10 sec",
+          "queryType": "range",
+          "refId": "B"
+        }
+      ],
+      "title": "LAN requests vs uplink requests",
+      "type": "timeseries",
+      "description": "Request counts sampled in non-overlapping 10-second buckets. The gap shows requests handled without contacting the upstream tile service."
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-GrYlRd"
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 11,
+        "w": 12,
+        "h": 8
+      },
+      "id": 18,
+      "interval": "10s",
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "(((sum(sum_over_time({job=\"mapproxy\",service=\"gateway\"} | json | uri=~\"/mapproxy/tiles/.*\" | unwrap bytes | __error__=\"\" [10s])) or vector(0)) - (sum(sum_over_time({job=\"mapproxy\",service=\"tile-cache\"} | json | cache=~\"MISS|EXPIRED|REVALIDATED|STALE\" | unwrap upstream_bytes | __error__=\"\" [10s])) or vector(0))) > 0) or vector(0)",
+          "legendFormat": "Estimated avoided payload / 10 sec",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Estimated tile data kept off uplink",
+      "type": "timeseries",
+      "description": "Estimated tile-body bytes avoided in each 10-second bucket: data served to LAN clients minus data received from upstream, with negative estimates shown as zero."
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 19,
+        "w": 8,
+        "h": 8
+      },
+      "id": 10,
+      "interval": "10s",
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "sum(sum_over_time({job=\"mapproxy\",service=\"gateway\"} | json | uri=~\"/mapproxy/tiles/.*\" | unwrap bytes | __error__=\"\" [10s])) or vector(0)",
+          "legendFormat": "LAN payload / 10 sec",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Tile data served to LAN",
+      "type": "timeseries",
+      "description": "Tile response-body bytes delivered to clients in each 10-second bucket."
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 8,
+        "y": 19,
+        "w": 8,
+        "h": 8
+      },
+      "id": 19,
+      "interval": "10s",
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "sum(sum_over_time({job=\"mapproxy\",service=\"tile-cache\"} | json | cache=~\"MISS|EXPIRED|REVALIDATED|STALE\" | unwrap upstream_bytes | __error__=\"\" [10s])) or vector(0)",
+          "legendFormat": "Upstream payload / 10 sec",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Tile data crossing the uplink",
+      "type": "timeseries",
+      "description": "Tile response-body bytes received from the upstream service in each 10-second bucket. Protocol and modem overhead are excluded."
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 16,
+        "y": 19,
+        "w": 8,
+        "h": 8
+      },
+      "id": 9,
+      "interval": "10s",
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "count(sum by (client) (count_over_time({job=\"mapproxy\",service=\"gateway\"} | json | uri=~\"/mapproxy/tiles/.*\" [10s]))) or vector(0)",
+          "legendFormat": "Active client addresses",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Active client addresses over time",
+      "type": "timeseries",
+      "description": "Distinct client source addresses observed in each 10-second bucket. NAT or VPN gateways can represent multiple devices as one address."
+    },
+    {
+      "id": 103,
+      "type": "row",
+      "title": "LATENCY & RELIABILITY",
+      "collapsed": false,
+      "panels": [],
+      "gridPos": {
+        "x": 0,
+        "y": 27,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 28,
+        "w": 8,
+        "h": 8
+      },
+      "id": 11,
+      "interval": "10s",
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "max(quantile_over_time(0.50, {job=\"mapproxy\",service=\"gateway\"} | json | uri=~\"/mapproxy/tiles/.*\" | unwrap request_time | __error__=\"\" [10s])) or vector(0)",
+          "legendFormat": "p50",
+          "queryType": "range",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "max(quantile_over_time(0.95, {job=\"mapproxy\",service=\"gateway\"} | json | uri=~\"/mapproxy/tiles/.*\" | unwrap request_time | __error__=\"\" [10s])) or vector(0)",
+          "legendFormat": "p95",
+          "queryType": "range",
+          "refId": "B"
+        }
+      ],
+      "title": "LAN tile response time",
+      "type": "timeseries",
+      "description": "Median (p50) and slow-end (p95) response time seen by LAN clients in each 10-second bucket."
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 8,
+        "y": 28,
+        "w": 8,
+        "h": 8
+      },
+      "id": 20,
+      "interval": "10s",
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "max(quantile_over_time(0.50, {job=\"mapproxy\",service=\"tile-cache\"} | json | cache=~\"MISS|EXPIRED|REVALIDATED|STALE\" | unwrap request_time | __error__=\"\" [10s])) or vector(0)",
+          "legendFormat": "p50",
+          "queryType": "range",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "max(quantile_over_time(0.95, {job=\"mapproxy\",service=\"tile-cache\"} | json | cache=~\"MISS|EXPIRED|REVALIDATED|STALE\" | unwrap request_time | __error__=\"\" [10s])) or vector(0)",
+          "legendFormat": "p95",
+          "queryType": "range",
+          "refId": "B"
+        }
+      ],
+      "title": "Upstream response time",
+      "type": "timeseries",
+      "description": "Median (p50) and slow-end (p95) duration of requests that contacted the upstream tile service."
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 16,
+        "y": 28,
+        "w": 8,
+        "h": 8
+      },
+      "id": 12,
+      "interval": "10s",
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "sum(count_over_time({job=\"mapproxy\",service=\"gateway\"} | json | uri=~\"/mapproxy/tiles/.*\" | status=~\"2..|3..\" [10s])) or vector(0)",
+          "legendFormat": "Successful responses",
+          "queryType": "range",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "sum(count_over_time({job=\"mapproxy\",service=\"gateway\"} | json | uri=~\"/mapproxy/tiles/.*\" | status=~\"4..\" [10s])) or vector(0)",
+          "legendFormat": "Client errors (4xx)",
+          "queryType": "range",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "sum(count_over_time({job=\"mapproxy\",service=\"gateway\"} | json | uri=~\"/mapproxy/tiles/.*\" | status=~\"5..\" [10s])) or vector(0)",
+          "legendFormat": "Server errors (5xx)",
+          "queryType": "range",
+          "refId": "C"
+        }
+      ],
+      "title": "Successful and failed tile responses",
+      "type": "timeseries",
+      "description": "Tile responses per 10-second bucket, separated into successful responses, client errors, and server errors."
+    },
+    {
+      "id": 104,
+      "type": "row",
+      "title": "CACHE BEHAVIOR",
+      "collapsed": false,
+      "panels": [],
+      "gridPos": {
+        "x": 0,
+        "y": 36,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "blue",
+            "mode": "fixed"
+          },
+          "noValue": "No source-cache activity",
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 37,
+        "w": 8,
+        "h": 8
+      },
+      "id": 6,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "100 * (sum(count_over_time({job=\"mapproxy\",service=\"tile-cache\"} | json | cache=\"HIT\" [15m])) or vector(0)) / sum(count_over_time({job=\"mapproxy\",service=\"tile-cache\"} | json | cache!=\"\" [15m]))",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ],
+      "title": "Source-cache hit rate after rendered misses (15 min)",
+      "type": "stat",
+      "description": "Of requests that reached the source-tile cache, the percentage served there without an upstream request. Rendered-tile hits never reach this cache and are intentionally excluded."
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 8,
+        "y": 37,
+        "w": 16,
+        "h": 8
+      },
+      "id": 13,
+      "interval": "10s",
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "sum(count_over_time({job=\"mapproxy\",service=\"tile-cache\"} | json | cache=\"HIT\" [10s])) or vector(0)",
+          "legendFormat": "Source-cache hits",
+          "queryType": "range",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "sum(count_over_time({job=\"mapproxy\",service=\"tile-cache\"} | json | cache=\"MISS\" [10s])) or vector(0)",
+          "legendFormat": "New upstream fetches",
+          "queryType": "range",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "sum(count_over_time({job=\"mapproxy\",service=\"tile-cache\"} | json | cache=~\"EXPIRED|REVALIDATED\" [10s])) or vector(0)",
+          "legendFormat": "Refreshes / revalidations",
+          "queryType": "range",
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "sum(count_over_time({job=\"mapproxy\",service=\"tile-cache\"} | json | cache=\"STALE\" [10s])) or vector(0)",
+          "legendFormat": "Stale served on upstream failure",
+          "queryType": "range",
+          "refId": "D"
+        }
+      ],
+      "title": "Source-cache outcomes over time",
+      "type": "timeseries",
+      "description": "Source-cache outcomes per 10-second bucket. Hits stay on the LAN; misses and refreshes use the uplink; stale responses preserve service during an upstream failure."
+    },
+    {
+      "id": 105,
+      "type": "row",
+      "title": "CLIENT & MAP DEMAND",
+      "collapsed": false,
+      "panels": [],
+      "gridPos": {
+        "x": 0,
+        "y": 45,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            }
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 46,
+        "w": 12,
+        "h": 8
+      },
+      "id": 7,
+      "options": {
+        "showHeader": true
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "client": 0,
+              "Value #A": 1
+            },
+            "renameByName": {
+              "client": "Client address",
+              "Value": "Tile requests",
+              "Value #A": "Tile requests"
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "desc": true,
+                "field": "Tile requests"
+              }
+            ]
+          }
+        }
+      ],
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "sum by (client) (count_over_time({job=\"mapproxy\",service=\"gateway\"} | json | uri=~\"/mapproxy/tiles/.*\" [5m]))",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ],
+      "title": "Tile requests by client address (5 min)",
+      "type": "table",
+      "description": "Five-minute request totals by observed source address. Use this to identify unusually active clients; NAT can combine multiple devices."
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-GrYlRd"
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 54,
+        "w": 24,
+        "h": 8
+      },
+      "id": 21,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.8,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "orientation": "vertical",
+        "showValue": "always",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "sum by (zoom) (count_over_time({job=\"mapproxy\",service=\"gateway\"} | json | uri=~\"/mapproxy/tiles/.*\" | regexp \"/mapproxy/tiles/[^/]+/[^/]+/(?P<zoom>[0-9]+)/\" | label_format zoom=`Z{{ printf \"%02s\" .zoom }}` [5m]))",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ],
+      "title": "Tile requests by zoom level (5 min)",
+      "type": "barchart",
+      "description": "One bar per numeric zoom level. Higher zoom numbers show more map detail and usually create more unique tile demand as users move."
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-BlPu"
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 46,
+        "w": 12,
+        "h": 8
+      },
+      "id": 22,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.8,
+        "fullHighlight": false,
+        "groupWidth": 0.4,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "orientation": "vertical",
+        "showValue": "always",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "sum by (layer) (count_over_time({job=\"mapproxy\",service=\"gateway\"} | json | uri=~\"/mapproxy/tiles/.*\" | regexp \"/mapproxy/tiles/(?P<layer>[^/]+)/\" [5m]))",
+          "legendFormat": "{{layer}}",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ],
+      "title": "Tile requests by map layer (5 min)",
+      "type": "barchart",
+      "description": "One bar per configured map layer, showing its tile-request total during the last five minutes."
+    },
+    {
+      "id": 106,
+      "type": "row",
+      "title": "EXCEPTIONS  //  ERRORS AND REQUESTS OVER ONE SECOND",
+      "collapsed": false,
+      "panels": [],
+      "gridPos": {
+        "x": 0,
+        "y": 62,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 63,
+        "w": 24,
+        "h": 6
+      },
+      "id": 8,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": true,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "{job=\"mapproxy\"} | json | status >= 400 or request_time > 1",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Recent failures and slow requests",
+      "type": "logs",
+      "description": "Only failed responses and requests taking longer than one second. Full request logs remain available through make logs."
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 41,
+  "tags": [
+    "ATAK",
+    "MapProxy",
+    "operations"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-30m",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m"
+    ]
+  },
+  "timezone": "browser",
+  "title": "ATAK MapProxy Operations",
+  "uid": "mapproxy-operations",
+  "version": 10,
+  "weekStart": ""
+}

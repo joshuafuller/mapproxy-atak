@@ -1,0 +1,66 @@
+---
+name: Map layer proposal
+description: >-
+  Propose a provider or self-hosted layer after reviewing its usage policy.
+title: "[Layer]: "
+labels: [map-layer]
+body:
+  - type: input
+    id: provider
+    attributes:
+      label: Provider and layer name
+    validations:
+      required: true
+  - type: input
+    id: policy
+    attributes:
+      label: Official usage or caching policy
+      description: Link directly to the provider's official policy.
+      placeholder: https://provider.example/policy
+    validations:
+      required: true
+  - type: textarea
+    id: attribution
+    attributes:
+      label: Required attribution
+      description: Include exact required text, link, and display rules.
+    validations:
+      required: true
+  - type: textarea
+    id: technical
+    attributes:
+      label: Technical details
+      description: >-
+        Describe XYZ/TMS/WMS/WMTS type, format, zooms, grid, authentication,
+        rate limits, and coverage.
+    validations:
+      required: true
+  - type: dropdown
+    id: caching
+    attributes:
+      label: Is proxy caching explicitly permitted?
+      options:
+        - "Yes"
+        - "No"
+        - Unclear
+    validations:
+      required: true
+  - type: dropdown
+    id: offline
+    attributes:
+      label: Is offline download or prefetching explicitly permitted?
+      options:
+        - "Yes"
+        - "No"
+        - Unclear
+    validations:
+      required: true
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Confirmation
+      options:
+        - label: >-
+            I reviewed `docs/ADDING-MAP-LAYERS.md` and am not assuming that a
+            public URL grants caching rights.
+          required: true

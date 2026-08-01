@@ -1,0 +1,70 @@
+---
+name: Bug report
+description: >-
+  Report a reproducible problem with setup, Docker, XML delivery, or tiles.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: >-
+        Remove private addresses, credentials, tokens, and sensitive map
+        locations before submitting logs or screenshots.
+  - type: dropdown
+    id: host
+    attributes:
+      label: Host environment
+      options:
+        - Windows with WSL and Docker Desktop
+        - Windows without WSL
+        - Linux
+        - macOS
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: docker
+    attributes:
+      label: Docker versions
+      description: >-
+        Paste the Docker and Compose versions; do not include private registry
+        details.
+      placeholder: "Docker 28.x; Compose v2.x"
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe the expected result and the actual result.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction steps
+      placeholder: |
+        1. Run ...
+        2. Open ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: status
+    attributes:
+      label: Sanitized status and logs
+      description: >-
+        Include `docker compose ps` and relevant logs after removing private
+        information.
+      render: shell
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Safety checks
+      options:
+        - label: >-
+            I removed credentials, private addresses, sensitive locations, and
+            personal information.
+          required: true
+        - label: I reviewed the Docker troubleshooting guide.
+          required: true
