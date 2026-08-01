@@ -11,7 +11,7 @@ the [map-layer guide](docs/ADDING-MAP-LAYERS.md) for the configuration model.
 2. Configure a local runtime:
 
    ```bash
-   docker compose run --rm configure \
+   ./scripts/configure.sh \
      127.0.0.1 https://example.com/contact 18080
    ```
 

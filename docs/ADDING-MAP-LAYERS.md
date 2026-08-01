@@ -166,7 +166,7 @@ into `runtime/`. The generated files remain ignored by Git.
 ### 5. Regenerate and restart
 
 ```bash
-docker compose run --rm configure \
+./scripts/configure.sh \
   192.168.1.50 https://maps.example.org/contact
 docker compose up -d --force-recreate --wait
 ./scripts/validate.sh --live

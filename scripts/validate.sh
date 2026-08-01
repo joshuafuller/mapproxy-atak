@@ -6,7 +6,7 @@ cd "$project_dir"
 
 for file in runtime/mapproxy.yaml runtime/upstream-nginx.conf runtime/real-ip.conf runtime/Caddyfile runtime/OpenStreetMap-MapProxy.xml runtime/site/index.html runtime/site/atak-import-qr.png; do
   if [[ ! -f "$file" ]]; then
-    echo "Missing generated file: $file (run 'docker compose run --rm configure <LAN-IP> <CONTACT-URL>' first)" >&2
+    echo "Missing generated file: $file (run './scripts/configure.sh <LAN-IP> <CONTACT-URL>' first)" >&2
     exit 1
   fi
 done
@@ -128,7 +128,7 @@ echo "Static validation passed."
 if [[ "${1:-}" == "--live" ]]; then
   port="${MAPPROXY_PORT:-}"
   if [[ -z "$port" ]]; then
-    published_address="$(docker compose port gateway 80)"
+    published_address="$(docker compose port gateway 8080)"
     port="${published_address##*:}"
   fi
   port="${port:-8080}"
@@ -137,7 +137,7 @@ if [[ "${1:-}" == "--live" ]]; then
   curl --fail --silent --show-error --max-time 5 "${base}/mapproxy/tms/1.0.0/" >/dev/null
   demo_status="$(curl --silent --output /dev/null --write-out '%{http_code}' --max-time 5 "${base}/mapproxy/demo/")"
   [[ "$demo_status" == "404" ]] || { echo "Browser demo unexpectedly enabled (HTTP ${demo_status})." >&2; exit 1; }
-  docker compose exec -T tile-cache wget -q -T 3 -O /dev/null http://127.0.0.1/healthz
+  docker compose exec -T tile-cache nginx -t
   content_type="$(curl --fail --silent --show-error --max-time 5 --head "${base}/sources/OpenStreetMap-MapProxy.xml" | tr -d '\r' | awk 'BEGIN{IGNORECASE=1} /^Content-Type:/ {print $2}')"
   [[ "$content_type" == "application/xml" ]] || { echo "Unexpected XML Content-Type: $content_type" >&2; exit 1; }
   echo "Live validation passed."

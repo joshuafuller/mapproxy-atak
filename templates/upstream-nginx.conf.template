@@ -6,7 +6,7 @@ log_format upstream_json escape=json
     '"upstream_bytes":"$upstream_response_length",'
     '"request_time":$request_time}';
 
-proxy_cache_path /var/cache/nginx/osm
+proxy_cache_path /var/lib/nginx/osm
     levels=1:2
     keys_zone=osm_tiles:16m
     max_size=10g
@@ -14,7 +14,7 @@ proxy_cache_path /var/cache/nginx/osm
     use_temp_path=off;
 
 server {
-    listen 80;
+    listen 8080;
     server_name _;
     access_log /dev/stdout upstream_json;
 

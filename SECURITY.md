@@ -23,3 +23,8 @@ credentials and cache contents before sharing diagnostics.
 Generated XML files and QR codes contain the deployment's LAN address. They are
 ignored by Git, but operators should still treat exported diagnostics and
 screenshots as potentially sensitive.
+
+Runtime images are versioned and digest-pinned. The LAN gateway and raw tile
+cache use a non-root Chainguard nginx image; Grafana uses its official
+distroless image. Dependabot proposes image and workflow updates, but operators
+should review release notes and rerun validation before deploying an update.

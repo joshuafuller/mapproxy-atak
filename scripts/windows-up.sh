@@ -25,7 +25,7 @@ cd "$project_dir"
 powershell.exe -NoProfile -ExecutionPolicy Bypass \
   -File "$(wslpath -w scripts/windows-forwarder.ps1)" install
 
-docker compose run --rm configure \
+./scripts/configure.sh \
   "$host" "$contact_url" "$public_port" 127.0.0.1 "$backend_port" true
 docker compose up -d --force-recreate --wait
 

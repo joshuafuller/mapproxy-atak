@@ -15,9 +15,11 @@ container:
 | `tile-cache` | Caches raw OSM responses and performs conditional revalidation. | No. |
 | `configure` | Generates deployment configuration, XML, install page, and QR; exits when finished. | No. |
 
-Containers are isolated processes built from published images. Compose creates
-them, connects them to a private network, and mounts persistent storage. You do
-not need to install nginx, Python, or MapProxy directly on the host.
+Containers are isolated processes built from published images. Both nginx
+roles use Chainguard's minimal non-root image, and Grafana uses its official
+distroless image. Compose connects the services to a private network and mounts
+persistent storage. You do not need to install nginx, Python, or MapProxy
+directly on the host.
 
 ## Windows with WSL
 
@@ -161,7 +163,7 @@ ip -4 address
 Then configure and start:
 
 ```bash
-docker compose run --rm configure \
+./scripts/configure.sh \
   192.168.1.50 https://maps.example.org/contact
 docker compose up -d --force-recreate --wait
 ```
@@ -176,7 +178,7 @@ then install Git with your preferred package manager. Find the active
 address under **System Settings → Network** and use it as `HOST`.
 
 ```bash
-docker compose run --rm configure \
+./scripts/configure.sh \
   192.168.1.50 https://maps.example.org/contact
 docker compose up -d --force-recreate --wait
 ```
@@ -247,7 +249,7 @@ docker compose up -d --force-recreate --wait
 ### Change the address or port
 
 ```bash
-docker compose run --rm configure \
+./scripts/configure.sh \
   maps.lan https://maps.example.org/contact 9090
 docker compose up -d --force-recreate --wait
 ```
@@ -269,18 +271,22 @@ Review release notes and retest before updating a field deployment.
 | Data | Location | Survives `docker compose down`? | Committed to Git? |
 | --- | --- | --- | --- |
 | Rendered tiles | `cache_data/` | Yes | No |
-| Raw HTTP responses | Docker volume `osm_http_cache` | Yes | No |
+| Raw HTTP responses | Docker volume `osm_http_cache_v2` | Yes | No |
 | Generated config, XML, page, and QR | `runtime/` | Yes | No |
 | Port settings | `.env` | Yes | No |
 
 `docker compose down --volumes` removes the raw response volume. It does not
 remove `cache_data/`, `runtime/`, or `.env`.
 
+The `osm_http_cache_v2` name separates the non-root Chainguard cache layout
+from early development versions. Docker does not delete an older
+`osm_http_cache` volume automatically.
+
 Inspect cache sizes:
 
 ```bash
 du -sh cache_data
-docker compose exec -T tile-cache du -sh /var/cache/nginx
+docker compose exec -T tile-cache du -sh /var/lib/nginx/osm
 ```
 
 ## Troubleshooting
@@ -300,7 +306,7 @@ shows a Server section.
 Choose another port:
 
 ```bash
-docker compose run --rm configure \
+./scripts/configure.sh \
   192.168.1.50 https://maps.example.org/contact 9090
 docker compose up -d --force-recreate --wait
 ```
@@ -326,7 +332,7 @@ Check, in order:
 1. The ATAK device and host are on the same trusted LAN.
 2. The XML was generated with the host's LAN address, not `127.0.0.1` or WSL's
    private address.
-3. `docker compose ps` shows `0.0.0.0:8080->80/tcp` for the gateway.
+3. `docker compose ps` shows `0.0.0.0:8080->8080/tcp` for the gateway.
 4. The host firewall permits the configured TCP port on the private LAN.
 5. Wi-Fi client isolation or guest-network isolation is disabled.
 6. A VPN is not forcing traffic away from the local network.

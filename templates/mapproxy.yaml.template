@@ -48,7 +48,7 @@ sources:
     grid: webmercator
     # The private HTTP cache honors upstream freshness headers and performs
     # conditional revalidation before MapProxy renders the attribution.
-    url: http://tile-cache/tiles/%(z)s/%(x)s/%(y)s.png
+    url: http://tile-cache:8080/tiles/%(z)s/%(x)s/%(y)s.png
     concurrent_requests: 4
     http:
       client_timeout: 30

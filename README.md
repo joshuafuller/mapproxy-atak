@@ -3,7 +3,7 @@
 
   <p>
     <img alt="Docker Compose" src="https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white">
-    <img alt="MapProxy 2.0" src="https://img.shields.io/badge/MapProxy-2.0-69DD8B">
+    <img alt="MapProxy 7.0" src="https://img.shields.io/badge/MapProxy-7.0-69DD8B">
     <img alt="License MIT" src="https://img.shields.io/badge/license-MIT-A9BCAE">
   </p>
 
@@ -76,7 +76,7 @@ address.
 Find the host's LAN address with `ip -4 address`, then run:
 
 ```bash
-docker compose run --rm configure \
+./scripts/configure.sh \
   192.168.1.50 https://maps.example.org/contact
 docker compose up -d --force-recreate --wait
 ```
@@ -159,7 +159,8 @@ privacy, retention, and LAN access.
 | Upstream protocol | HTTP/1.1; HTTP/2 and HTTP/3 are not currently supported. |
 
 Rendered tiles persist in ignored `cache_data/`. Raw responses persist in the
-Docker volume `osm_http_cache`. A normal `docker compose down` preserves both.
+Docker volume `osm_http_cache_v2`. A normal `docker compose down` preserves
+both.
 
 > [!IMPORTANT]
 > Do not use ATAK's offline-download feature against `tile.openstreetmap.org`.
