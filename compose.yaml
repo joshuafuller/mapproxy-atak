@@ -4,7 +4,7 @@ services:
     profiles: [setup]
     build:
       context: .
-      dockerfile: docker/configurator.Dockerfile
+      dockerfile: docker/Dockerfile
     working_dir: /workspace
     volumes:
       - ./:/workspace
